@@ -1,29 +1,59 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginRequest, RegisterRequest, LoginResponse, ApiResponse } from '@ai-blog/types';
+import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 
 @Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const user = await this.authService.validateUser(loginDto.username, loginDto.password);
-    if (!user) {
-      return { success: false, error: 'Invalid credentials' };
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    try {
+      const result = await this.authService.register(registerDto);
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
     }
-    const result = await this.authService.login(user);
-    return { success: true, data: result };
   }
 
-  @Post('register')
-  async register(@Body() registerDto: RegisterRequest): Promise<ApiResponse> {
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginDto) {
     try {
-      const user = await this.authService.register(registerDto);
-      return { success: true, data: user, message: 'User registered successfully' };
-    } catch (error) {
-      return { success: false, error: error.message };
+      const result = await this.authService.login(loginDto);
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Req() req: any) {
+    try {
+      const result = await this.authService.getProfile(req.user.id);
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
     }
   }
 }

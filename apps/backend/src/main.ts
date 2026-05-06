@@ -3,9 +3,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { logger } from './utils/logger';
+import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -33,7 +37,7 @@ async function bootstrap() {
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('AI Blog Platform API')
-      .setDescription('API documentation for AI Blog Platform')
+      .setDescription('API documentation for AI Blog Platform - Hybrid Nest.js + Express')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
@@ -46,6 +50,7 @@ async function bootstrap() {
   
   logger.info(`🚀 Backend server running on http://localhost:${port}`);
   logger.info(`📚 API Docs available at http://localhost:${port}/api/docs`);
+  logger.info(`🔧 Using hybrid Nest.js + Express architecture`);
 }
 
 bootstrap().catch((error) => {
