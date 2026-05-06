@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
-import { RAGController } from './rag.controller';
+import { RagController } from './rag.controller';
+import { RagService } from './rag.service';
 
 @Module({
-  controllers: [RAGController],
+  controllers: [RagController],
+  providers: [RagService],
+  exports: [RagService],
 })
 export class RAGModule {}

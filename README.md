@@ -10,17 +10,17 @@ A full-stack AI-powered content creation platform integrating LangChain-based Ag
 - **Agentic RAG**: Document indexing and retrieval with context-augmented generation
 - **Visual Workflow Editor**: Drag-and-drop workflow orchestration with React Flow
 - **Browser Extension**: Chrome/Edge extension for CSDN enhancement
-- **CLI Tools**: Command-line interface for agent and memory management
+- **Dify Integration**: Seamless integration with Dify workflow platform
 
 ## 📋 Tech Stack
 
 ### Backend
 - **Runtime**: Node.js 18+ / TypeScript 5.x
-- **Framework**: Express.js
+- **Framework**: Nest.js (Pure Nest.js architecture)
 - **Agent Framework**: LangChain.js
-- **Database**: MongoDB (Mongoose ODM)
-- **Cache**: Redis
-- **Task Queue**: Bull
+- **Database**: MongoDB (Mongoose ODM with Nest.js modules)
+- **Cache**: Redis (Nest.js service)
+- **API Documentation**: Swagger/OpenAPI
 
 ### Frontend
 - **Framework**: React 18 + TypeScript
@@ -32,50 +32,76 @@ A full-stack AI-powered content creation platform integrating LangChain-based Ag
 ### Browser Extension
 - **Framework**: WXT (Manifest V3)
 
+### DevOps
+- **Monorepo**: Turborepo + pnpm workspaces
+- **CI/CD**: GitHub Actions + Vercel
+- **Containerization**: Docker & Docker Compose
+
 ## 🏗️ Project Structure
 
 ```
-AI-app/
-├── backend/                 # Backend API service
-│   ├── src/
-│   │   ├── agent/          # Agent core implementation
-│   │   ├── api/            # REST API routes
-│   │   ├── config/         # Configuration files
-│   │   ├── middleware/     # Express middleware
-│   │   ├── models/         # Mongoose models
-│   │   ├── tools/          # MCP tools
-│   │   └── utils/          # Utility functions
-│   └── package.json
-├── frontend/               # React frontend application
-│   ├── src/
-│   │   ├── api/           # API client
-│   │   ├── components/    # React components
-│   │   ├── pages/         # Page components
-│   │   └── stores/        # Zustand stores
-│   └── package.json
-├── extension/             # Browser extension (TODO)
-├── docker/                # Docker configuration
+ai-blog-monorepo/
+├── apps/                          # Applications
+│   ├── backend/                   # Nest.js backend API
+│   │   ├── src/
+│   │   │   ├── agent/            # Core AI logic (LangChain)
+│   │   │   │   ├── core/         # BlogAgent, LLM provider, tools
+│   │   │   │   ├── memory/       # Short-term & long-term memory
+│   │   │   │   ├── rag/          # RAG system & document processor
+│   │   │   │   ├── workflow/     # Workflow engine
+│   │   │   │   └── skills/       # Blog-specific skills
+│   │   │   ├── modules/          # Nest.js feature modules
+│   │   │   │   ├── auth/         # Authentication module
+│   │   │   │   ├── agent/        # Agent API endpoints
+│   │   │   │   ├── memory/       # Memory management
+│   │   │   │   ├── workflow/     # Workflow orchestration
+│   │   │   │   ├── rag/          # RAG operations
+│   │   │   │   ├── database/     # MongoDB connection
+│   │   │   │   └── redis/        # Redis connection
+│   │   │   ├── guards/           # JWT authentication guard
+│   │   │   ├── filters/          # Exception filters
+│   │   │   ├── interceptors/     # Rate limiting interceptor
+│   │   │   ├── services/         # External services (Dify)
+│   │   │   ├── tools/            # Text & document tools
+│   │   │   ├── utils/            # Logger utility
+│   │   │   ├── app.module.ts     # Root module
+│   │   │   └── main.ts           # Application entry point
+│   │   └── package.json
+│   ├── frontend/                  # React frontend application
+│   │   ├── src/
+│   │   │   ├── api/              # API client
+│   │   │   ├── components/       # React components
+│   │   │   ├── pages/            # Page components
+│   │   │   └── stores/           # Zustand stores
+│   │   └── package.json
+│   └── extension/                 # Browser extension
+├── packages/                      # Shared packages
+│   └── types/                     # Shared TypeScript types
+├── docker/                        # Docker configuration
 │   ├── docker-compose.yml
 │   ├── Dockerfile.backend
 │   └── Dockerfile.frontend
-└── specs/                 # Project specifications
+├── .github/workflows/             # CI/CD pipelines
+├── turbo.json                     # Turborepo configuration
+└── pnpm-workspace.yaml            # pnpm workspace definition
 ```
 
-## 🛠️ Prerequisites
+## 🚦 Getting Started
+
+### Prerequisites
 
 - Node.js 18+ installed
+- pnpm 8.9+ (package manager)
 - Docker and Docker Compose
 - MongoDB (or use Docker)
 - Redis (or use Docker)
 - OpenAI API key
 
-## 🚦 Getting Started
-
 ### 1. Clone Repository
 
 ```bash
 git clone <repository-url>
-cd AI-app
+cd ai-blog-monorepo
 ```
 
 ### 2. Environment Setup
@@ -84,20 +110,26 @@ Copy environment variable templates:
 
 ```bash
 # Backend
-cp backend/.env.example backend/.env
+cp apps/backend/.env.example apps/backend/.env
 
 # Frontend
-cp frontend/.env.example frontend/.env
+cp apps/frontend/.env.example apps/frontend/.env
 ```
 
-Edit `backend/.env` and add your OpenAI API key:
+Edit `apps/backend/.env` and add your OpenAI API key:
 
 ```env
 OPENAI_API_KEY=your-openai-api-key-here
 JWT_SECRET=your-secret-key-change-in-production
 ```
 
-### 3. Using Docker Compose (Recommended)
+### 3. Install Dependencies
+
+```bash
+pnpm install
+```
+
+### 4. Using Docker Compose (Recommended)
 
 Start all services:
 
@@ -111,22 +143,38 @@ This will start:
 - Backend API on port 3000
 - Frontend on port 5173
 
-### 4. Manual Setup (Alternative)
+### 5. Manual Setup (Alternative)
 
 #### Backend
 
 ```bash
-cd backend
-npm install
-npm run dev
+cd apps/backend
+pnpm install
+pnpm run start:dev    # Development mode with hot reload
 ```
 
 #### Frontend
 
 ```bash
-cd frontend
-npm install
-npm run dev
+cd apps/frontend
+pnpm install
+pnpm run dev          # Development server
+```
+
+### 6. Monorepo Commands
+
+```bash
+# Run all apps in development mode
+pnpm run dev
+
+# Build all apps
+pnpm run build
+
+# Run tests across all apps
+pnpm run test
+
+# Clean all builds
+pnpm run clean
 ```
 
 ## 📖 API Documentation
@@ -136,90 +184,147 @@ npm run dev
 http://localhost:3000/api
 ```
 
+### Swagger Documentation
+When running in development mode, access interactive API docs at:
+```
+http://localhost:3000/api/docs
+```
+
 ### Key Endpoints
+
+#### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login and get JWT token
+- `GET /api/auth/me` - Get current user profile
 
 #### Agent
 - `POST /api/agent/chat` - Chat with AI agent
 - `POST /api/agent/execute` - Execute a skill/tool
-- `GET /api/agent/sessions` - List sessions
+- `GET /api/agent/sessions` - List chat sessions
+- `GET /api/agent/sessions/:id` - Get session history
 
 #### Memory
 - `GET /api/memory/search?q=keyword` - Search memories
 - `POST /api/memory/store` - Store new memory
+- `PUT /api/memory/:id` - Update memory
 - `DELETE /api/memory/:id` - Delete memory
+- `GET /api/memory/stats` - Memory statistics
 
 #### Workflows
 - `GET /api/workflows` - List workflows
 - `POST /api/workflows` - Create workflow
+- `PUT /api/workflows/:id` - Update workflow
+- `DELETE /api/workflows/:id` - Delete workflow
 - `POST /api/workflows/:id/execute` - Execute workflow
+- `GET /api/workflows/:id/executions` - Execution history
+
+#### Dify Integration
+- `POST /api/workflows/dify/execute` - Execute Dify workflow
+- `GET /api/workflows/dify/status/:taskId` - Get workflow status
+- `POST /api/workflows/dify/stop/:taskId` - Stop workflow
+- `GET /api/workflows/dify/info` - Get Dify app info
+- `GET /api/workflows/dify/health` - Check Dify health
 
 #### RAG
 - `POST /api/rag/index` - Index documents
 - `POST /api/rag/query` - Query with context
+- `DELETE /api/rag/documents/:id` - Remove document
+- `GET /api/rag/stats` - Index statistics
+
+### Health Check
+```
+GET /health
+```
 
 ## 🔧 Development
 
 ### Backend Development
 
 ```bash
-cd backend
-npm run dev        # Start development server
-npm run build      # Build for production
-npm run lint       # Run ESLint
-npm run test       # Run tests
+cd apps/backend
+pnpm run start:dev      # Development with hot reload
+pnpm run build          # Build for production
+pnpm run start:prod     # Start production build
+pnpm run lint           # Run ESLint
+pnpm run test           # Run tests
 ```
 
 ### Frontend Development
 
 ```bash
-cd frontend
-npm run dev        # Start development server
-npm run build      # Build for production
-npm run lint       # Run ESLint
+cd apps/frontend
+pnpm run dev            # Development server
+pnpm run build          # Build for production
+pnpm run lint           # Run ESLint
+```
+
+### Monorepo Development
+
+```bash
+# Run all apps simultaneously
+pnpm run dev
+
+# Build specific app
+pnpm --filter @ai-blog/backend build
+pnpm --filter @ai-blog/frontend build
+
+# Test specific app
+pnpm --filter @ai-blog/backend test
 ```
 
 ## 🧪 Testing
 
 ```bash
-cd backend
-npm run test           # Run tests
-npm run test:coverage  # Run with coverage
+# Run all tests
+cd apps/backend
+pnpm run test
+
+# Run with coverage
+pnpm run test:coverage
+
+# Run specific test file
+pnpm run test -- auth.service.spec.ts
 ```
 
 ## 📝 Implementation Status
 
 ### ✅ Completed
-- [x] Project structure and configuration
-- [x] Backend Express server setup
-- [x] Database connections (MongoDB + Redis)
-- [x] API route structure
+- [x] Monorepo structure with Turborepo + pnpm
+- [x] Pure Nest.js backend architecture
+- [x] Database connections (MongoDB + Redis) via Nest.js modules
+- [x] Authentication module with JWT
+- [x] Agent module with LangChain integration
+- [x] Memory management system (short-term & long-term)
+- [x] RAG pipeline with document indexing
+- [x] Workflow orchestration engine
+- [x] Dify integration
+- [x] API documentation with Swagger
 - [x] Frontend React app with routing
-- [x] Authentication UI
 - [x] State management setup
 - [x] Docker Compose configuration
+- [x] CI/CD pipeline with GitHub Actions + Vercel
 
 ### 🚧 In Progress
-- [ ] Agent core implementation with LangChain
-- [ ] Memory management system
-- [ ] RAG pipeline
-- [ ] MCP tools development
-- [ ] Visual workflow editor
-- [ ] Browser extension
+- [ ] Advanced skills framework
+- [ ] Browser extension completion
+- [ ] Comprehensive unit tests
+- [ ] Performance optimization
 
 ### 📅 Planned
-- [ ] CLI tools
-- [ ] Advanced skills framework
-- [ ] Task scheduling
-- [ ] Production deployment
-- [ ] Comprehensive testing
+- [ ] Task scheduling with Bull
+- [ ] WebSocket real-time updates
+- [ ] Advanced monitoring and analytics
+- [ ] Multi-language support
 
 ## 🔐 Security
 
-- JWT authentication for API endpoints
-- Rate limiting (100 requests/minute)
-- Input validation and sanitization
+- JWT authentication with Nest.js guards
+- Rate limiting (100 requests/minute) via interceptors
+- Input validation with class-validator DTOs
 - CORS configuration
 - Helmet.js security headers
+- Global exception filtering
+- Password hashing with bcrypt
 
 ## 📊 Monitoring
 
@@ -245,11 +350,14 @@ AI Blog Platform Development Team
 
 ## 🙏 Acknowledgments
 
-- LangChain for the agent framework
-- OpenAI for GPT models
-- Ant Design for UI components
-- React Flow for workflow visualization
+- **Nest.js** for the modern backend framework
+- **LangChain** for the agent framework
+- **OpenAI** for GPT models
+- **Ant Design** for UI components
+- **React Flow** for workflow visualization
+- **Turborepo** for monorepo build system
+- **Vercel** for frontend hosting
 
 ---
 
-**Note**: This is an initial project setup. Many features are marked as TODO and need implementation. Refer to the `specs/` directory for detailed requirements and task breakdown.
+**Architecture Note**: This project uses a pure Nest.js backend with modular architecture. The `src/agent/` directory contains core AI logic (LangChain agents, memory systems, RAG, workflows) that is integrated into Nest.js modules for HTTP API exposure. This hybrid approach maintains clean separation between business logic and API layer while leveraging Nest.js benefits like dependency injection, validation, and error handling.

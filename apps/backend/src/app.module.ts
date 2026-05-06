@@ -7,6 +7,10 @@ import { RedisModule } from './modules/redis/redis.module';
 
 // Feature modules
 import { AuthModule } from './modules/auth/auth.module';
+import { AgentModule } from './modules/agent/agent.module';
+import { MemoryModule } from './modules/memory/memory.module';
+import { WorkflowModule } from './modules/workflow/workflow.module';
+import { RAGModule } from './modules/rag/rag.module';
 
 @Module({
   imports: [
@@ -17,11 +21,10 @@ import { AuthModule } from './modules/auth/auth.module';
     DatabaseModule,
     RedisModule,
     AuthModule,
-    // TODO: Add more modules as they are implemented
-    // AgentModule,
-    // MemoryModule,
-    // WorkflowModule,
-    // RAGModule,
+    AgentModule,
+    MemoryModule,
+    WorkflowModule,
+    RAGModule,
   ],
 })
 export class AppModule {}
