@@ -1,5 +1,5 @@
 {
-  "name": "ai-blog-extension",
+  "name": "@ai-blog/extension",
   "version": "1.0.0",
   "description": "AI Blog Platform - Browser Extension for CSDN Enhancement",
   "type": "module",
@@ -7,7 +7,8 @@
     "dev": "wxt",
     "build": "wxt build",
     "zip": "wxt zip",
-    "compile": "tsc --noEmit"
+    "compile": "tsc --noEmit",
+    "clean": "rm -rf .output dist"
   },
   "dependencies": {
     "wxt": "^0.19.0"

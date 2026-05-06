@@ -44,7 +44,7 @@ services:
   # Backend API Service
   backend:
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile.backend
     container_name: ai-blog-backend
     restart: unless-stopped
@@ -59,7 +59,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
       CORS_ORIGIN: http://localhost:5173
     volumes:
-      - ./backend:/app
+      - ../apps/backend:/app/apps/backend
+      - ../packages/types:/app/packages/types
       - /app/node_modules
     depends_on:
       mongodb:
@@ -68,12 +69,12 @@ services:
         condition: service_healthy
     networks:
       - ai-blog-network
-    command: npm run dev
+    command: pnpm start:dev
 
   # Frontend Development Server
   frontend:
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile.frontend
     container_name: ai-blog-frontend
     restart: unless-stopped
@@ -82,13 +83,14 @@ services:
     environment:
       VITE_API_URL: http://localhost:3000/api
     volumes:
-      - ./frontend:/app
+      - ../apps/frontend:/app/apps/frontend
+      - ../packages/types:/app/packages/types
       - /app/node_modules
     depends_on:
       - backend
     networks:
       - ai-blog-network
-    command: npm run dev
+    command: pnpm dev -- --host 0.0.0.0
 
 networks:
   ai-blog-network:

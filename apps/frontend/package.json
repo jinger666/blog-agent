@@ -1,5 +1,5 @@
 {
-  "name": "ai-blog-frontend",
+  "name": "@ai-blog/frontend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -8,9 +8,11 @@
     "preview": "vite preview",
     "lint": "eslint src/**/*.ts src/**/*.tsx",
     "lint:fix": "eslint src/**/*.ts src/**/*.tsx --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@ai-blog/types": "workspace:*",
     "@ant-design/icons": "^5.2.6",
     "@xyflow/react": "^12.10.2",
     "antd": "^5.12.0",
