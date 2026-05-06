@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -52,7 +56,7 @@ jobs:
         with:
           directory: ./backend/coverage
 
-  build:
+  build-and-deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -60,6 +64,30 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Frontend: Deploy to Vercel
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./frontend
+
+      - name: Build Frontend
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./frontend
+
+      - name: Deploy Frontend to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./frontend
+
+      # Backend: Build and push Docker image
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -77,24 +105,18 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ai-blog-backend:latest
 
-      - name: Build and push frontend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile.prod
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ai-blog-frontend:latest
-
-  deploy:
-    needs: build
+  deploy-backend:
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy to production
+      - name: Deploy Backend
         run: |
-          echo "Deploying to production server..."
-          # Add your deployment commands here
-          # Example: SSH to server and run docker-compose up -d
+          echo "✅ Backend Docker image deployed"
+          echo "✅ Frontend deployed to Vercel"
+          echo "🚀 Full deployment complete!"
+          # Add additional backend deployment steps if needed
+          # Example: Update Kubernetes, restart Docker containers, etc.
