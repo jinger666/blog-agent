@@ -1,32 +1,48 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import rateLimit from 'express-rate-limit';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
+interface RateLimitStore {
+  [key: string]: {
+    count: number;
+    resetTime: number;
+  };
+}
 
 @Injectable()
 export class RateLimitInterceptor implements NestInterceptor {
-  private limiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: {
-      success: false,
-      error: 'Too many requests, please try again later',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+  private store: RateLimitStore = {};
+  private readonly windowMs = 60 * 1000; // 1 minute
+  private readonly maxRequests = 100; // 100 requests per window
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+    const ip = request.ip || request.connection.remoteAddress;
+    const now = Date.now();
 
-    return new Observable((observer) => {
-      this.limiter(request, response, () => {
-        next.handle().subscribe({
-          next: (value) => observer.next(value),
-          error: (error) => observer.error(error),
-          complete: () => observer.complete(),
-        });
-      });
-    });
+    // Initialize or get existing record
+    if (!this.store[ip] || now > this.store[ip].resetTime) {
+      this.store[ip] = {
+        count: 1,
+        resetTime: now + this.windowMs,
+      };
+    } else {
+      this.store[ip].count++;
+    }
+
+    // Check if rate limit exceeded
+    if (this.store[ip].count > this.maxRequests) {
+      return throwError(() => new HttpException(
+        {
+          success: false,
+          error: 'Too many requests, please try again later',
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      ));
+    }
+
+    return next.handle().pipe(
+      catchError((error) => throwError(() => error)),
+    );
   }
 }

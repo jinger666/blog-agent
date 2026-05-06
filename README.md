@@ -236,6 +236,19 @@ http://localhost:3000/api/docs
 GET /health
 ```
 
+## 📚 Documentation
+
+Detailed documentation is available in the `docs/` directory:
+
+- **[Quick Start](./docs/QUICKSTART.md)** - Get started quickly
+- **[Development Guide](./docs/DEVELOPMENT_GUIDE.md)** - Complete development guide
+- **[Dify Integration](./docs/DIFY_INTEGRATION.md)** - Dify platform integration
+- **[Vercel Setup](./docs/VERCEL_SETUP.md)** - Deployment guide
+- **[Monorepo Migration](./docs/MONOREPO_MIGRATION.md)** - Architecture details
+- **[Implementation Summary](./docs/IMPLEMENTATION_SUMMARY.md)** - Implementation status
+
+See [docs/README.md](./docs/README.md) for complete documentation index.
+
 ## 🔧 Development
 
 ### Backend Development
