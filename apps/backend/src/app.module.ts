@@ -1,11 +1,11 @@
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-// Import existing Express routes for hybrid approach
-import expressApp from './index';
+// Infrastructure modules
+import { DatabaseModule } from './modules/database/database.module';
+import { RedisModule } from './modules/redis/redis.module';
 
-// Nest.js modules (can be gradually added)
+// Feature modules
 import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
@@ -14,14 +14,14 @@ import { AuthModule } from './modules/auth/auth.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/ai_blog'),
-    // Add Nest.js modules here as you migrate
+    DatabaseModule,
+    RedisModule,
     AuthModule,
+    // TODO: Add more modules as they are implemented
+    // AgentModule,
+    // MemoryModule,
+    // WorkflowModule,
+    // RAGModule,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    // Apply middleware if needed
-    // consumer.apply(AuthGuard).forRoutes('protected-routes');
-  }
-}
+export class AppModule {}
