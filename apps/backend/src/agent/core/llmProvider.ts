@@ -3,7 +3,7 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { logger } from '../../utils/logger';
 
-export type LLMProvider = 'openai' | 'anthropic' | 'ollama';
+export type LLMProvider = 'openai' | 'anthropic' | 'ollama' | 'deepseek';
 
 export interface LLMConfig {
   provider: LLMProvider;
@@ -46,6 +46,19 @@ class LLMProviderFactory {
         });
         break;
 
+      case 'deepseek':
+        llm = new ChatOpenAI({
+          modelName: config.model || 'deepseek-chat',
+          temperature: config.temperature || 0.7,
+          maxTokens: config.maxTokens || 2000,
+          openAIApiKey: config.apiKey || process.env.DEEPSEEK_API_KEY,
+          streaming: true,
+          configuration: {
+            baseURL: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
+          },
+        });
+        break;
+
       case 'anthropic':
         llm = new ChatAnthropic({
           modelName: config.model || 'claude-3-sonnet-20240229',
@@ -74,8 +87,8 @@ export const llmFactory = LLMProviderFactory.getInstance();
 
 export const getDefaultLLM = (): BaseChatModel => {
   return llmFactory.createLLM({
-    provider: (process.env.LLM_PROVIDER as LLMProvider) || 'openai',
-    model: process.env.LLM_MODEL || 'gpt-4',
+    provider: (process.env.LLM_PROVIDER as LLMProvider) || 'deepseek',
+    model: process.env.LLM_MODEL || 'deepseek-chat',
     temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.7'),
     maxTokens: parseInt(process.env.LLM_MAX_TOKENS || '2000'),
   });

@@ -75,7 +75,7 @@ export class WorkflowController {
 
   // Dify endpoints
   @Post('dify/execute')
-  async executeDify(@Body() body: any) {
+  async executeDify(@Body() body: any): Promise<any> {
     const { inputs, userId = 'anonymous', responseMode = 'blocking', workflowId } = body;
 
     if (!inputs) {
@@ -91,7 +91,7 @@ export class WorkflowController {
   }
 
   @Get('dify/status/:taskId')
-  async getDifyStatus(@Param('taskId') taskId: string) {
+  async getDifyStatus(@Param('taskId') taskId: string): Promise<any> {
     try {
       const result = await this.workflowService.getDifyStatus(taskId);
       return result;

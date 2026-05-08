@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Card, Button, Space, message, Drawer, Form, Input, Select, Modal, Tag } from 'antd';
+import { Card, Button, Space, Drawer, Form, Input, Select, Modal, App } from 'antd';
 import { 
   PlusOutlined, 
   SaveOutlined, 
@@ -47,6 +47,7 @@ const DifyStyleEditor: React.FC = () => {
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [form] = Form.useForm();
+  const { message } = App.useApp();
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const nodeIdCounter = useRef(0);

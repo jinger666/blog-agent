@@ -27,7 +27,7 @@ import {
   EdgeChange,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Card, Button, Space, message, Drawer, Form, Input, Select, Modal, Tooltip, Popconfirm } from 'antd';
+import { Button, Space, Drawer, Form, Input, Select, Modal, Tooltip, Popconfirm, App } from 'antd';
 import { 
   SaveOutlined, 
   PlayCircleOutlined,
@@ -36,8 +36,7 @@ import {
   UndoOutlined,
   RedoOutlined,
   SearchOutlined,
-  PlusOutlined,
-  SettingOutlined
+  PlusOutlined
 } from '@ant-design/icons';
 
 
@@ -70,7 +69,7 @@ const StartNode = ({ data }: NodeProps) => {
         }}>
           C
         </div>
-        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{data.label || '开始'}</strong>
+        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{(data as any).label || '开始'}</strong>
       </div>
 
       {/* 输入变量 */}
@@ -128,7 +127,7 @@ const LLMNode = ({ data }: NodeProps) => {
           }}>
             🤖
           </div>
-          <strong style={{ fontSize: '15px', color: '#1f2937' }}>{data.label || '大模型'}</strong>
+          <strong style={{ fontSize: '15px', color: '#1f2937' }}>{(data as any).label || '大模型'}</strong>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <span style={{ fontSize: '16px', color: '#9ca3af', cursor: 'pointer' }}>▶</span>
@@ -223,7 +222,7 @@ const ToolNode = ({ data }: NodeProps) => {
         }}>
           🔧
         </div>
-        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{data.label || '工具'}</strong>
+        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{(data as any).label || '工具'}</strong>
       </div>
 
       {/* 配置项 */}
@@ -284,7 +283,7 @@ const ConditionNode = ({ data }: NodeProps) => {
         }}>
           ⚡
         </div>
-        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{data.label || '条件判断'}</strong>
+        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{(data as any).label || '条件判断'}</strong>
       </div>
 
       {/* 配置项 */}
@@ -345,7 +344,7 @@ const EndNode = ({ data }: NodeProps) => {
         }}>
           →
         </div>
-        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{data.label || '结束'}</strong>
+        <strong style={{ fontSize: '15px', color: '#1f2937' }}>{(data as any).label || '结束'}</strong>
       </div>
 
       {/* 输出配置 */}
@@ -607,11 +606,12 @@ const AddNodePanel: React.FC<AddNodePanelProps> = ({ visible, onClose, onAddNode
 const WorkflowCanvas: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+  const { message } = App.useApp();
   
   // 初始化节点状态：默认包含开始和结束节点
   const initialNodes: Node[] = [];
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes] = useNodesState(initialNodes);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
@@ -906,12 +906,17 @@ const WorkflowCanvas: React.FC = () => {
   // 连接节点
   const onConnect = useCallback(
     (params: Connection) => {
+      const newEdge: Edge = {
+        id: `edge-${params.source}-${params.target}`,
+        source: params.source!,
+        target: params.target!,
+        sourceHandle: params.sourceHandle ?? undefined,
+        targetHandle: params.targetHandle ?? undefined,
+        animated: true,
+        style: { stroke: '#999', strokeWidth: 2 },
+      };
       setEdges((eds) => {
-        const newEdges = addEdge({ 
-          ...params, 
-          animated: true,
-          style: { stroke: '#999', strokeWidth: 2 }
-        }, eds);
+        const newEdges = addEdge(newEdge, eds);
         saveToHistory(nodes, newEdges);
         return newEdges;
       });
@@ -1091,59 +1096,6 @@ const WorkflowCanvas: React.FC = () => {
     message.info('工作流将提交到后端执行');
     console.log('执行工作流:', { nodes, edges });
   };
-
-  // 清空画布
-  const handleClear = () => {
-    Modal.confirm({
-      title: '清空画布',
-      content: '确定要清空所有节点和连接吗？将恢复到初始的开始和结束节点。',
-      onOk: () => {
-        const wrapper = reactFlowWrapper.current;
-        if (wrapper) {
-          const rect = wrapper.getBoundingClientRect();
-          const startX = rect.width * 0.2;
-          const endX = rect.width * 0.8;
-          const centerY = rect.height / 2;
-
-          const startPosition = screenToFlowPosition({ x: startX, y: centerY });
-          const endPosition = screenToFlowPosition({ x: endX, y: centerY });
-
-          const initialNodes: Node[] = [
-            {
-              id: 'node-start',
-              type: 'start',
-              position: startPosition,
-              data: {
-                label: '开始',
-                inputVarName: 'input',
-                inputVarType: 'String',
-                description: '工作流的起点',
-              },
-            },
-            {
-              id: 'node-end',
-              type: 'end',
-              position: endPosition,
-              data: {
-                label: '结束',
-                outputVarName: 'output',
-                outputType: 'return_variable',
-                description: '工作流的终点',
-              },
-            },
-          ];
-          setNodes(initialNodes);
-          setEdges([]);
-          setSelectedNode(null);
-          setHistory([{ nodes: initialNodes, edges: [] }]);
-          setHistoryIndex(0);
-          message.success('画布已重置为初始状态');
-        }
-      },
-    });
-  };
-
-
 
   // 键盘快捷键
   useEffect(() => {

@@ -14,7 +14,10 @@ export class WorkflowNode {
   })
   type: string;
 
-  @Prop({ required: true })
+  @Prop({ 
+    required: true,
+    type: { x: Number, y: Number }
+  })
   position: { x: number; y: number };
 
   @Prop({ type: Object, required: true })

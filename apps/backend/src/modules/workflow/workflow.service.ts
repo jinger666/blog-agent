@@ -43,7 +43,7 @@ export class WorkflowService {
           id: workflow.id,
           name: workflow.name,
           description: workflow.description,
-          createdAt: workflow.createdAt,
+          createdAt: (workflow as any).createdAt,
         },
         message: 'Workflow created successfully',
       };
@@ -106,8 +106,8 @@ export class WorkflowService {
 
       const execution = await workflowEngine.executeWorkflow(
         id,
-        workflow.nodes,
-        workflow.edges,
+        workflow.nodes as any,
+        workflow.edges as any,
         initialData
       );
 
@@ -137,7 +137,7 @@ export class WorkflowService {
   }
 
   // Dify Integration Methods
-  async executeDifyWorkflow(inputs: any, userId: string = 'anonymous', responseMode = 'blocking', workflowId?: string) {
+  async executeDifyWorkflow(inputs: any, userId: string = 'anonymous', responseMode: 'blocking' | 'streaming' = 'blocking', workflowId?: string): Promise<any> {
     try {
       const result = await difyService.executeWorkflow(inputs, userId, responseMode, workflowId);
 
@@ -152,7 +152,7 @@ export class WorkflowService {
     }
   }
 
-  async getDifyStatus(taskId: string) {
+  async getDifyStatus(taskId: string): Promise<any> {
     try {
       const status = await difyService.getWorkflowStatus(taskId);
 

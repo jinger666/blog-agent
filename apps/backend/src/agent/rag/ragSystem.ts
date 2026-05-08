@@ -1,7 +1,25 @@
-import DocumentChunk from '../../models/DocumentChunk';
+import mongoose from 'mongoose';
 import { documentProcessor, DocumentData, DocumentChunk as ChunkType } from './documentProcessor';
 import { logger } from '../../utils/logger';
 import { v4 as uuidv4 } from 'uuid';
+
+// Define schema inline for legacy agent code
+const DocumentChunkSchema = new mongoose.Schema(
+  {
+    chunkId: { type: String, required: true, unique: true },
+    documentId: { type: String, required: true, index: true },
+    content: { type: String, required: true },
+    embedding: { type: [Number], required: true },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+DocumentChunkSchema.index({ documentId: 1 });
+
+const DocumentChunk = (mongoose.models.DocumentChunk || mongoose.model('DocumentChunk', DocumentChunkSchema)) as any;
 
 export interface RAGQueryResult {
   answer: string;
@@ -30,6 +48,8 @@ class RAGSystem {
         content: chunk.content,
         embedding: chunk.embedding!,
         metadata: chunk.metadata,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }));
 
       await DocumentChunk.insertMany(documents);

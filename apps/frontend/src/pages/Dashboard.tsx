@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, List, Tag } from 'antd';
-import { MessageOutlined, BranchesOutlined, DatabaseOutlined, BookOutlined, FileTextOutlined } from '@ant-design/icons';
+import { MessageOutlined, DatabaseOutlined, BookOutlined, FileTextOutlined } from '@ant-design/icons';
 import apiClient from '../api/client';
 
 const Dashboard: React.FC = () => {

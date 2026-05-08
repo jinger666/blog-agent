@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Input, Button, Table, Tag, Space, message, Modal, Form } from 'antd';
+import { Card, Input, Button, Table, Tag, Space, Modal, Form, App } from 'antd';
 import { SearchOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import apiClient from '../api/client';
 
@@ -20,6 +20,7 @@ const MemoryManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const { message } = App.useApp();
 
   useEffect(() => {
     loadMemories();
