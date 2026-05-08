@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '22'
-  PNPM_VERSION: '9.15.0'
+  PNPM_VERSION: '10.10.0'
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '9.15.0'
+          version: '10.10.0'
           run_install: false
 
       - name: Get pnpm store directory
@@ -123,7 +123,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '9.15.0'
+          version: '10.10.0'
           run_install: false
 
       - name: Get pnpm store directory
