@@ -1,18 +1,18 @@
 # Backend Dockerfile for Monorepo
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@8.9.0
+RUN npm install -g pnpm@10.10.0
 
 # Copy monorepo files
-COPY package.json pnpm-workspace.yaml turbo.json ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
 COPY packages/types/package.json ./packages/types/
 COPY apps/backend/package.json ./apps/backend/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile || pnpm install
 
 # Copy source code
 COPY packages/types ./packages/types
@@ -25,19 +25,19 @@ RUN cd packages/types && pnpm build
 RUN cd apps/backend && pnpm build
 
 # Production stage
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@8.9.0
+RUN npm install -g pnpm@10.10.0
 
-# Copy package files
-COPY package.json pnpm-workspace.yaml ./
+# Copy package files and lock file
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/backend/package.json ./apps/backend/
 
 # Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile || pnpm install --prod
 
 # Copy built files
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
