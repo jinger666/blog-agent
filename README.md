@@ -164,8 +164,11 @@ pnpm run dev          # Development server
 ### 6. Monorepo Commands
 
 ```bash
-# Run all apps in development mode
+# Run backend and frontend in development mode
 pnpm run dev
+
+# Run extension only (separately)
+pnpm run dev:extension
 
 # Build all apps
 pnpm run build
