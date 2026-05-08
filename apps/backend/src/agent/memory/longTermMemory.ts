@@ -1,5 +1,36 @@
-import Memory from '../../models/Memory';
+import mongoose from 'mongoose';
 import { logger } from '../../utils/logger';
+
+// Define schema inline for legacy agent code
+const MemorySchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    userId: { type: String, required: true, index: true },
+    content: { type: String, required: true },
+    embedding: { type: [Number], required: true },
+    category: {
+      type: String,
+      enum: ['fact', 'preference', 'history'],
+      required: true,
+      index: true,
+    },
+    importance: { type: Number, required: true, default: 0.5, min: 0, max: 1, index: true },
+    createdAt: { type: Date, default: Date.now, index: true },
+    updatedAt: { type: Date, default: Date.now },
+    accessedAt: { type: Date, default: Date.now, index: true },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+MemorySchema.index({ userId: 1, category: 1 });
+MemorySchema.index({ userId: 1, importance: -1 });
+MemorySchema.index({ userId: 1, createdAt: -1 });
+MemorySchema.index({ userId: 1, accessedAt: -1 });
+
+const Memory = (mongoose.models.Memory || mongoose.model('Memory', MemorySchema)) as any;
 
 export interface MemoryData {
   id: string;

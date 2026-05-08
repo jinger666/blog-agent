@@ -13,7 +13,7 @@ export class RagService {
         id: documentId,
         content,
         metadata,
-        type,
+        type: type as 'pdf' | 'docx' | 'txt' | 'markdown',
       });
 
       return {

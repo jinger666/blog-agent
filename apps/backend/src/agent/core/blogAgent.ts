@@ -1,4 +1,4 @@
-import { AgentExecutor, createReactAgent } from 'langchain/agents';
+import { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { Tool } from '@langchain/core/tools';
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
@@ -28,7 +28,7 @@ export interface AgentResponse {
 class BlogAgent {
   private llm: BaseChatModel;
   private tools: Tool[];
-  private executor: AgentExecutor | null = null;
+  private executor: any | null = null; // Using 'any' temporarily as createReactAgent returns AgentRunnableSequence
   private maxIterations: number;
 
   constructor(config: AgentConfig = {}) {
@@ -42,7 +42,7 @@ class BlogAgent {
       const prompt = ChatPromptTemplate.fromMessages([
         new SystemMessage(
           `You are an AI assistant specialized in blog content creation and optimization.
-          
+
 Your capabilities include:
 - Generating catchy blog titles
 - Creating content outlines
@@ -51,7 +51,8 @@ Your capabilities include:
 - Formatting content for different platforms (especially CSDN)
 - Processing multi-modal content (text, images, documents)
 
-Always provide helpful, accurate, and well-structured responses.
+When a user asks you to perform a task, use the appropriate tool if available.
+Always provide helpful, accurate, and well-structured responses in Chinese.
 When using tools, explain what you're doing and why.`
         ),
         new MessagesPlaceholder('chat_history'),
@@ -59,10 +60,18 @@ When using tools, explain what you're doing and why.`
         new MessagesPlaceholder('agent_scratchpad'),
       ]);
 
-      this.executor = await createReactAgent({
+      const agent = await createOpenAIToolsAgent({
         llm: this.llm,
         tools: this.tools,
         prompt,
+      });
+
+      // Wrap the agent with AgentExecutor for consistent interface
+      this.executor = new AgentExecutor({
+        agent,
+        tools: this.tools,
+        maxIterations: this.maxIterations,
+        verbose: true,
       });
 
       logger.info('BlogAgent initialized successfully');

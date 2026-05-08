@@ -57,9 +57,9 @@ export class AgentController {
   }
 
   @Get('sessions')
-  async listSessions(@Query('userId') userId = 'anonymous', @Query('limit') limit = 10) {
+  async listSessions(@Query('userId') userId = 'anonymous', @Query('limit') limit: any = 10) {
     try {
-      const result = await this.agentService.listSessions(userId, parseInt(limit as string));
+      const result = await this.agentService.listSessions(userId, parseInt(limit));
       return {
         success: true,
         data: result,

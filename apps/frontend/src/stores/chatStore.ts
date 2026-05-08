@@ -5,35 +5,56 @@ interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
-  attachments?: Array<{
-    type: 'image' | 'document';
-    url: string;
-    name: string;
-  }>;
+}
+
+interface Session {
+  id: string;
+  title: string;
+  lastMessage?: string;
+  updatedAt: string;
+  messageCount: number;
 }
 
 interface ChatState {
-  sessionId: string | null;
+  currentSessionId: string | null;
+  sessions: Session[];
   messages: Message[];
   isLoading: boolean;
+  sessionsLoading: boolean;
   setSessionId: (id: string) => void;
+  clearSession: () => void;
   addMessage: (message: Message) => void;
+  setMessages: (messages: Message[]) => void;
   setLoading: (loading: boolean) => void;
+  setSessions: (sessions: Session[]) => void;
+  setSessionsLoading: (loading: boolean) => void;
   clearChat: () => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
-  sessionId: null,
+  currentSessionId: null,
+  sessions: [],
   messages: [],
   isLoading: false,
-  
-  setSessionId: (id) => set({ sessionId: id }),
-  
+  sessionsLoading: false,
+
+  setSessionId: (id) => set({ currentSessionId: id }),
+
+  clearSession: () => set({ currentSessionId: null, messages: [] }),
+
   addMessage: (message) => set((state) => ({
     messages: [...state.messages, message],
   })),
-  
+
+  setMessages: (messages) => set({ messages }),
+
   setLoading: (loading) => set({ isLoading: loading }),
-  
-  clearChat: () => set({ messages: [], sessionId: null }),
+
+  setSessions: (sessions) => set({ sessions }),
+
+  setSessionsLoading: (loading) => set({ sessionsLoading: loading }),
+
+  clearChat: () => set({ messages: [], currentSessionId: null }),
 }));
+
+export type { Message, Session };

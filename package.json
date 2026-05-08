@@ -5,6 +5,7 @@
   "description": "AI Blog Platform - Monorepo with Turborepo and pnpm",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:extension": "pnpm --filter @ai-blog/extension run dev",
     "build": "turbo run build",
     "start": "turbo run start",
     "lint": "turbo run lint",
@@ -19,7 +20,7 @@
   },
   "packageManager": "pnpm@8.9.0",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=22.0.0",
     "pnpm": ">=8.0.0"
   }
 }

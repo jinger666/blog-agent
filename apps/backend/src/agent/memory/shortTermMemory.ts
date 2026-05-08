@@ -1,5 +1,30 @@
-import Session from '../../models/Session';
+import mongoose from 'mongoose';
 import { logger } from '../../utils/logger';
+
+// Define schema inline for legacy agent code
+const MessageSchema = new mongoose.Schema({
+  role: { type: String, enum: ['user', 'assistant', 'system'], required: true },
+  content: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+}, { _id: false });
+
+const SessionSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    userId: { type: String, required: true, index: true },
+    createdAt: { type: Date, default: Date.now },
+    lastActiveAt: { type: Date, default: Date.now },
+    context: { type: mongoose.Schema.Types.Mixed, default: {} },
+    messages: [MessageSchema],
+  },
+  {
+    timestamps: true,
+  }
+);
+
+SessionSchema.index({ userId: 1, lastActiveAt: -1 });
+
+const Session = (mongoose.models.Session || mongoose.model('Session', SessionSchema)) as any;
 
 export interface Message {
   role: 'user' | 'assistant' | 'system';

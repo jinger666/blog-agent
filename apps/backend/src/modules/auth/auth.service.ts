@@ -98,7 +98,7 @@ export class AuthService {
         role: user.role,
       },
       secret,
-      { expiresIn }
+      { expiresIn: expiresIn as any }
     );
   }
 }

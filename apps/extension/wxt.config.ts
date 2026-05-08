@@ -13,12 +13,9 @@ export default defineConfig({
     host_permissions: [
       'https://blog.csdn.net/*',
       'http://localhost:3000/*',
+      'http://localhost:5173/*',
+      'http://localhost:5174/*',
+      'http://localhost:5175/*',
     ],
-    action: {
-      default_title: 'AI Blog Assistant',
-    },
-    side_panel: {
-      default_path: 'sidepanel.html',
-    },
   },
 });

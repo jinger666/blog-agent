@@ -9,7 +9,7 @@ export class MemoryController {
   async searchMemories(
     @Query('userId') userId = 'anonymous',
     @Query('q') query: string,
-    @Query('limit') limit = 10,
+    @Query('limit') limit: any = 10,
     @Query('category') category?: string,
   ) {
     if (!query) {
@@ -20,7 +20,7 @@ export class MemoryController {
       const result = await this.memoryService.searchMemories(
         userId,
         query,
-        parseInt(limit as string),
+        parseInt(limit),
         category
       );
       return { success: true, data: result };
