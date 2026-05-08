@@ -161,16 +161,22 @@ jobs:
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
         working-directory: ./apps/frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://your-api-domain.com/api' }}
 
       - name: Build Frontend
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
         working-directory: ./apps/frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://your-api-domain.com/api' }}
 
       - name: Deploy Frontend to Vercel
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
         working-directory: ./apps/frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://your-api-domain.com/api' }}
 
       # Backend: Build and push Docker image
       - name: Check Docker secrets
