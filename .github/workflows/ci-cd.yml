@@ -157,6 +157,16 @@ jobs:
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: pnpm add -g vercel@latest
 
+      - name: Remove problematic env vars from Vercel
+        if: steps.vercel-check.outputs.has_vercel == 'true'
+        run: |
+          echo "Removing VITE_API_URL from Vercel project config to avoid secret reference error"
+          vercel env rm VITE_API_URL production --token="${{ secrets.VERCEL_TOKEN }}" --yes || echo "Variable not found or already removed"
+          vercel env rm VITE_API_URL preview --token="${{ secrets.VERCEL_TOKEN }}" --yes || echo "Variable not found or already removed"
+          vercel env rm VITE_API_URL development --token="${{ secrets.VERCEL_TOKEN }}" --yes || echo "Variable not found or already removed"
+        working-directory: ./apps/frontend
+        continue-on-error: true
+
       - name: Pull Vercel Environment Information
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
