@@ -162,16 +162,16 @@ jobs:
         run: |
           echo "Configuring Vercel environment variables for production..."
           
-          # Set BACKEND_URL for Vercel rewrites (API proxy)
-          vercel env add BACKEND_URL production --token="${{ secrets.VERCEL_TOKEN }}" <<< "${{ secrets.BACKEND_URL || 'https://your-api-domain.com' }}" || echo "BACKEND_URL already configured"
+          # Set BACKEND_URL for the serverless proxy function
+          vercel env add BACKEND_URL production --token="${{ secrets.VERCEL_TOKEN }}" <<< "${{ secrets.BACKEND_URL || 'https://yapi.ap-siliconflow.cn' }}" || echo "BACKEND_URL already configured"
           
-          # Set VITE_API_URL for frontend build (use relative path for Vercel proxy)
+          # Set VITE_API_URL for frontend build (routes to serverless proxy /api/proxy)
           vercel env rm VITE_API_URL production --token="${{ secrets.VERCEL_TOKEN }}" --yes || echo "VITE_API_URL not found"
-          vercel env add VITE_API_URL production --token="${{ secrets.VERCEL_TOKEN }}" <<< "/api" || echo "VITE_API_URL configured"
+          vercel env add VITE_API_URL production --token="${{ secrets.VERCEL_TOKEN }}" <<< "/api/proxy" || echo "VITE_API_URL configured"
           
           # Configure for preview environment
           vercel env rm VITE_API_URL preview --token="${{ secrets.VERCEL_TOKEN }}" --yes || echo "VITE_API_URL preview not found"
-          vercel env add VITE_API_URL preview --token="${{ secrets.VERCEL_TOKEN }}" <<< "/api" || echo "VITE_API_URL preview configured"
+          vercel env add VITE_API_URL preview --token="${{ secrets.VERCEL_TOKEN }}" <<< "/api/proxy" || echo "VITE_API_URL preview configured"
         working-directory: ./apps/frontend
         continue-on-error: true
 
@@ -180,21 +180,21 @@ jobs:
         run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
         working-directory: ./apps/frontend
         env:
-          VITE_API_URL: /api
+          VITE_API_URL: /api/proxy
 
       - name: Build Frontend
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
         working-directory: ./apps/frontend
         env:
-          VITE_API_URL: /api
+          VITE_API_URL: /api/proxy
 
       - name: Deploy Frontend to Vercel
         if: steps.vercel-check.outputs.has_vercel == 'true'
         run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
         working-directory: ./apps/frontend
         env:
-          VITE_API_URL: /api
+          VITE_API_URL: /api/proxy
 
       # Backend: Build and push Docker image
       - name: Check Docker secrets
