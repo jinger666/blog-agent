@@ -57,3 +57,9 @@ extension/dist/
 
 # Database data (local development)
 data/
+
+# Claude Code personal overrides
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/agent-memory/
+**/CLAUDE.local.md

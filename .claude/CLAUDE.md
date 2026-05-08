@@ -1,4 +1,3 @@
-
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -47,7 +46,7 @@ The backend has two distinct layers with different patterns:
 - `longTermMemory` — persistent memory with embedding vectors, categories, and importance scoring
 - `ragSystem` — document chunking, indexing, and text-based retrieval
 - `toolRegistry` — LangChain tool registry for agent skills
-- `llmFactory` / `getDefaultLLM()` — LLM provider factory (OpenAI/Anthropic)
+- `llmFactory` / `getDefaultLLM()` — LLM provider factory (OpenAI/Anthropic/DeepSeek)
 
 These singletons use **raw Mongoose** (`new mongoose.Schema()`, `mongoose.model()`) directly — not NestJS's `@nestjs/mongoose`.
 
