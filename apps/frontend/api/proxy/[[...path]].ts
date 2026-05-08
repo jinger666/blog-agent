@@ -1,14 +1,12 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-const BACKEND_URL = process.env.BACKEND_URL || 'https://yapi.ap-siliconflow.cn';
-
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
+  const BACKEND_URL = process.env.BACKEND_URL || 'https://yapi.ap-siliconflow.cn';
+
   // Handle OPTIONS preflight
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,23 +18,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Extract the path after /api/proxy/
-  // e.g., /api/proxy/auth/register -> /auth/register
   const path = req.url?.replace(/^\/api\/proxy/, '') || '';
   const targetUrl = `${BACKEND_URL}${path}`;
 
   // Build headers to forward
-  const headers: Record<string, string> = {};
-  const forwardHeaders = ['content-type', 'authorization', 'accept', 'x-request-id'];
-  for (const h of forwardHeaders) {
-    if (req.headers[h]) {
-      headers[h] = req.headers[h] as string;
-    }
-  }
+  const headers = {};
+  ['content-type', 'authorization', 'accept', 'x-request-id'].forEach(h => {
+    if (req.headers[h]) headers[h] = req.headers[h];
+  });
 
-  const fetchOptions: RequestInit = {
-    method: req.method,
-    headers,
-  };
+  const fetchOptions = { method: req.method, headers };
 
   // Forward body for non-GET/HEAD requests
   if (req.method !== 'GET' && req.method !== 'HEAD' && req.body !== undefined) {
@@ -47,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await fetch(targetUrl, fetchOptions);
     const contentType = response.headers.get('content-type') || '';
 
-    // Set CORS headers on response
+    // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
@@ -61,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const text = await response.text();
       res.status(response.status).send(text);
     }
-  } catch (error: any) {
+  } catch (error) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(502).json({
       error: 'Backend proxy error',
